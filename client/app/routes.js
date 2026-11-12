@@ -1,0 +1,13 @@
+import { index, route } from '@react-router/dev/routes';
+
+// Routing is now data, not a sequence of app.get() calls.
+// With ssr off, only the browser's router uses it.
+export default [
+	index('routes/home.jsx'),
+	route('items', 'routes/items.jsx'),
+	route('item_view/:item_id', 'routes/item_view.jsx'),
+	route('orders', 'routes/orders.jsx'),
+	route('orders/:purchase_id', 'routes/order_view.jsx'),
+	route('login', 'routes/login.jsx'),
+	route('register', 'routes/register.jsx'),
+];
