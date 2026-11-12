@@ -54,3 +54,18 @@ test('reviews include no password hash', async () => {
 	assert.ok(!response.text.includes('password_hash'));
 	assert.ok(response.text.includes('amy'));
 });
+
+// 4. You buy 1 to 10 of something
+test('quantity has to be a whole number from 1 to 10', async () => {
+	const amy = await register('amy');
+
+	for (const quantity of [-3, 0, 1.5, 11, '2', null]) {
+		const response = await amy.post('/api/item_view/6/buy', { quantity, cost: 12.34 });
+		assert.equal(response.status, 422, `quantity ${JSON.stringify(quantity)}`);
+	}
+	assert.equal(row('item', 6).stock, 5);
+	assert.equal(purchasesOf('amy').length, 0);
+
+	assert.equal((await buy(amy, 6, 2)).status, 201);
+	assert.equal(row('item', 6).stock, 3);
+});

@@ -163,6 +163,9 @@ app.post('/api/item_view/:item_id/buy', requireUser, async (req, res) => {
 
 	// the page sends the price it showed, so the customer pays what they saw
 	const { quantity, cost } = req.body ?? {};
+	if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
+		return res.status(422).json({ errors: ['Quantity must be a whole number from 1 to 10.'] });
+	}
 	if (item.stock < quantity) return res.status(409).json({ errors: ['Not enough in stock.'] });
 
 	// record the order, charge the card, then take it out of stock
