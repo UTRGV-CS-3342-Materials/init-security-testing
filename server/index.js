@@ -134,13 +134,14 @@ app.post('/api/item_view/:item_id/reviews', requireUser, (req, res) => {
 	res.status(201).json({ review });
 });
 
-// you have to be logged in to edit or delete, and the buttons only show on your own reviews
+// Logged in isn't enough: the database calls check that this review is yours.
+// Someone else's review gets the same 404 as one that doesn't exist.
 app.put('/api/reviews/:review_id', requireUser, (req, res) => {
 	const { content } = req.body ?? {};
 	if (!content?.trim()) return res.status(422).json({ errors: ['Review is required.'] });
 
 	// whatever fields the form sends, so the form can grow without changing the server
-	const review = updateReview(parseInt(req.params.review_id), { ...req.body, content: content.trim() });
+	const review = updateReview(parseInt(req.params.review_id), req.user.id, { ...req.body, content: content.trim() });
 	if (!review) return res.status(404).json({ errors: ['No such review.'] });
 
 	res.json({ review });
@@ -148,7 +149,7 @@ app.put('/api/reviews/:review_id', requireUser, (req, res) => {
 
 app.delete('/api/reviews/:review_id', requireUser, (req, res) => {
 	const reviewId = parseInt(req.params.review_id);
-	if (!deleteReview(reviewId)) return res.status(404).json({ errors: ['No such review.'] });
+	if (!deleteReview(reviewId, req.user)) return res.status(404).json({ errors: ['No such review.'] });
 
 	res.status(204).end();
 });
